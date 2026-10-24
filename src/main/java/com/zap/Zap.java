@@ -31,6 +31,7 @@ import com.zap.project.mainclass.MainClassSourceLocator;
 import com.zap.project.mainclass.MainClassVerifier;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 public final class Zap {
 
@@ -94,6 +95,7 @@ public final class Zap {
     }
 
     private static int runProject(Command.Run run) {
+        Objects.requireNonNull(run, "run");
         ProjectLocator locator = new ProjectLocator();
         Path root = locator.locate(locator.currentDirectory());
 
