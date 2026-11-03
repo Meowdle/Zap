@@ -90,14 +90,17 @@ public record ZapConfig(Path sourceDirectory,
     }
 
     private static String portable(Path path) {
+        Objects.requireNonNull(path, "path");
         return path.toString().replace('\\', '/');
     }
 
     private static String requireNonBlank(String value, String key) {
-        if (value == null || value.isBlank()) {
+        if (value == null || value.isBlank())
             throw new IllegalArgumentException(
-                    "Configuration value must not be blank: " + key);
-        }
+                    "Configuration value must not be blank: "
+                            + key
+            );
+
         return value;
     }
 }
