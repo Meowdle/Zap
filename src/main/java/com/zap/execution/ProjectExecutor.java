@@ -2,7 +2,7 @@ package com.zap.execution;
 
 import com.zap.config.ZapConfig;
 import com.zap.exception.project.MainClassException;
-import com.zap.exception.config.ProjectStructureException;
+import com.zap.exception.project.ProjectStructureException;
 import com.zap.project.ProjectLayout;
 import com.zap.project.SourceDiscovery;
 import com.zap.project.mainclass.MainClassResolver;

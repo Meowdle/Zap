@@ -1,7 +1,7 @@
 package com.zap.project;
 
 import com.zap.exception.ZapIoException;
-import com.zap.exception.config.ProjectStructureException;
+import com.zap.exception.project.ProjectStructureException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
