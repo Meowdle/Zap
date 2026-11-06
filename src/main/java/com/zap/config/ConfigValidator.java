@@ -65,16 +65,18 @@ public final class ConfigValidator {
     private static void validatePath(Properties properties,
                                      String key,
                                      List<ConfigViolation> violations) {
+        Objects.requireNonNull(properties, "properties");
         String value = properties.getProperty(key);
-        if (value == null || value.isBlank()) {
-            return;
-        }
+        if (value == null || value.isBlank()) return;
+
         try {
             Path.of(value.trim());
         }
         catch (InvalidPathException e) {
             violations.add(new ConfigViolation(
-                    key, "Invalid path for " + key + ": " + value));
+                    key,
+                    "Invalid path for " + key + ": " + value
+            ));
         }
     }
 
@@ -108,18 +110,45 @@ public final class ConfigValidator {
         }
     }
 
+    private static void validateClasspathEntries(Properties properties,
+                                                 List<ConfigViolation> violations) {
+        for (String name : properties.stringPropertyNames()) {
+            if (!name.startsWith(ConfigKeys.CLASSPATH_PREFIX))
+                continue;
+
+            String value = properties.getProperty(name);
+            String pathPart = ClasspathEntries.pathPart(value);
+
+            if (value.isBlank() || pathPart.isBlank()) {
+                violations.add(new ConfigViolation(
+                        name,
+                        "Classpath entries must not be blank: " + name
+                ));
+                continue;
+            }
+
+            try {
+                Path.of(pathPart);
+            }
+            catch (InvalidPathException e) {
+                violations.add(new ConfigViolation(
+                        name,
+                        "Invalid class path entry for " + name + ": " + pathPart
+                ));
+            }
+        }
+    }
+
     private static Integer parseIndex(String text) {
         boolean badLength = text.isEmpty() || text.length() > 6;
         boolean leadingZero = text.length() > 1 && text.charAt(0) == '0';
 
-        if (badLength || leadingZero) {
-            return null;
-        }
-        for (int i = 0; i < text.length(); i++) {
-            if (!Character.isDigit(text.charAt(i))) {
+        if (badLength || leadingZero) return null;
+
+        for (int i = 0; i < text.length(); i++)
+            if (!Character.isDigit(text.charAt(i)))
                 return null;
-            }
-        }
+
         return Integer.parseInt(text);
     }
 }

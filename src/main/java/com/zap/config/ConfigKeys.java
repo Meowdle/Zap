@@ -17,4 +17,5 @@ public final class ConfigKeys {
     public static final String AUTO_MAIN_CLASS = "auto";
     public static final String INPUT_PREFIX = "input.";
     public static final String ARGS_PREFIX = "args.";
+    public static final String CLASSPATH_PREFIX = "classpath.";
 }

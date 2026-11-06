@@ -12,7 +12,8 @@ public record ZapConfig(Path sourceDirectory,
                         String runtimeExecutable,
                         String mainClass,
                         List<String> inputs,
-                        List<String> args) {
+                        List<String> args,
+                        List<String> classpath) {
 
     public ZapConfig {
 
@@ -33,6 +34,7 @@ public record ZapConfig(Path sourceDirectory,
 
         inputs = List.copyOf(inputs);
         args = List.copyOf(args);
+        classpath = List.copyOf(classpath);
     }
 
     public static ZapConfig defaults() {
@@ -43,22 +45,28 @@ public record ZapConfig(Path sourceDirectory,
                 "java",
                 ConfigKeys.AUTO_MAIN_CLASS,
                 List.of(),
+                List.of(),
                 List.of());
     }
 
     public ZapConfig withMainClass(String value) {
         return new ZapConfig(sourceDirectory, compilerExecutable, outputDirectory,
-                runtimeExecutable, value, inputs, args);
+                runtimeExecutable, value, inputs, args, classpath);
     }
 
     public ZapConfig withInputs(List<String> value) {
         return new ZapConfig(sourceDirectory, compilerExecutable, outputDirectory,
-                runtimeExecutable, mainClass, value, args);
+                runtimeExecutable, mainClass, value, args, classpath);
     }
 
     public ZapConfig withArgs(List<String> value) {
         return new ZapConfig(sourceDirectory, compilerExecutable, outputDirectory,
-                runtimeExecutable, mainClass, inputs, value);
+                runtimeExecutable, mainClass, inputs, value, classpath);
+    }
+
+    public ZapConfig withClasspath(List<String> value) {
+        return new ZapConfig(sourceDirectory, compilerExecutable, outputDirectory,
+                runtimeExecutable, mainClass, inputs, args, value);
     }
 
     public Map<String, String> asMap() {
@@ -70,26 +78,29 @@ public record ZapConfig(Path sourceDirectory,
         map.put(ConfigKeys.MAIN_CLASS, mainClass);
         putIndexed(map, ConfigKeys.INPUT_PREFIX, inputs);
         putIndexed(map, ConfigKeys.ARGS_PREFIX, args);
+        putIndexed(map, ConfigKeys.CLASSPATH_PREFIX, classpath);
         return map;
     }
 
     private static void putIndexed(Map<String, String> map,
                                    String prefix,
                                    List<String> values) {
-        for (int i = 0; i < values.size(); i++) {
+        for (int i = 0; i < values.size(); i++)
             map.put(prefix + i, values.get(i));
-        }
     }
 
     private static String portable(Path path) {
+        Objects.requireNonNull(path, "path");
         return path.toString().replace('\\', '/');
     }
 
     private static String requireNonBlank(String value, String key) {
-        if (value == null || value.isBlank()) {
+        if (value == null || value.isBlank())
             throw new IllegalArgumentException(
-                    "Configuration value must not be blank: " + key);
-        }
+                    "Configuration value must not be blank: "
+                            + key
+            );
+
         return value;
     }
 }

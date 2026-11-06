@@ -2,7 +2,7 @@ package com.zap.project;
 
 import com.zap.config.ConfigPaths;
 import com.zap.config.ZapConfig;
-import com.zap.exception.config.ProjectStructureException;
+import com.zap.exception.project.ProjectStructureException;
 
 import java.nio.file.Path;
 import java.util.Objects;

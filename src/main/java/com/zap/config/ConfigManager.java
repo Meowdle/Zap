@@ -44,20 +44,21 @@ public final class ConfigManager {
         }
 
         List<ConfigViolation> violations = validator.validate(merged);
-        if (!violations.isEmpty()) {
-            throw new InvalidConfigurationException(violations);
-        }
+        if (!violations.isEmpty())
+            throw new InvalidConfigurationException(
+                    violations
+            );
 
         return toConfig(merged);
     }
 
-    /** Applies a change to the saved config, validates the result, then saves it. */
+    // Applies a change to the saved config, validates the result, then saves it.
     public ZapConfig update(Path projectRoot, UnaryOperator<ZapConfig> change) {
         Objects.requireNonNull(change, "change");
         return save(projectRoot, change.apply(resolve(projectRoot)));
     }
 
-    /** Validates the given config and replaces the saved one. */
+    // Validates the given config and replaces the saved one.
     public ZapConfig save(Path projectRoot, ZapConfig config) {
         Objects.requireNonNull(projectRoot, "projectRoot");
         Objects.requireNonNull(config, "config");
@@ -67,22 +68,26 @@ public final class ConfigManager {
         return config;
     }
 
-    /** Throws InvalidConfigurationException with every problem found. */
+    // Throws InvalidConfigurationException with every problem found.
     public void requireValid(ZapConfig config) {
         Objects.requireNonNull(config, "config");
 
         Properties properties = new Properties();
-        config.asMap().forEach(properties::setProperty);
+        config.asMap()
+                .forEach(properties::setProperty);
 
         List<ConfigViolation> violations = validator.validate(properties);
-        if (!violations.isEmpty()) {
-            throw new InvalidConfigurationException(violations);
-        }
+        if (!violations.isEmpty())
+            throw new InvalidConfigurationException(
+                    violations
+            );
     }
 
     private static Properties defaultProperties() {
         Properties properties = new Properties();
-        ZapConfig.defaults().asMap().forEach(properties::setProperty);
+        ZapConfig.defaults()
+                .asMap()
+                .forEach(properties::setProperty);
         return properties;
     }
 
@@ -90,7 +95,9 @@ public final class ConfigManager {
     private static String normalize(String key, String value) {
         boolean significant = key.startsWith(ConfigKeys.INPUT_PREFIX)
                 || key.startsWith(ConfigKeys.ARGS_PREFIX);
-        return significant ? value : value.trim();
+        return significant
+                ? value
+                : value.trim();
     }
 
     private static ZapConfig toConfig(Properties p) {
@@ -101,15 +108,16 @@ public final class ConfigManager {
                 p.getProperty(ConfigKeys.RUNTIME_EXECUTABLE),
                 p.getProperty(ConfigKeys.MAIN_CLASS),
                 indexed(p, ConfigKeys.INPUT_PREFIX),
-                indexed(p, ConfigKeys.ARGS_PREFIX));
+                indexed(p, ConfigKeys.ARGS_PREFIX),
+                indexed(p, ConfigKeys.CLASSPATH_PREFIX));
     }
 
-    /* The validator already guarantees the keys are continuous from 0. */
+    // The validator already guarantees the keys are continuous from 0.
     private static List<String> indexed(Properties p, String prefix) {
         List<String> values = new ArrayList<>();
-        for (int i = 0; p.getProperty(prefix + i) != null; i++) {
+        for (int i = 0; p.getProperty(prefix + i) != null; i++)
             values.add(p.getProperty(prefix + i));
-        }
+
         return values;
     }
 }

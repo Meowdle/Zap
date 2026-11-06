@@ -5,19 +5,25 @@ import com.zap.exception.ZapIoException;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public final class MainClassVerifier {
 
-    public MainClassStatus verify(Path classesDirectory, String mainClass) {
+    public MainClassStatus verify(Path classesDirectory,
+                                  List<Path> classpath,
+                                  String mainClass) {
         Objects.requireNonNull(classesDirectory, "classesDirectory");
+        Objects.requireNonNull(classpath, "classpath");
         Objects.requireNonNull(mainClass, "mainClass");
 
         try (URLClassLoader loader = new URLClassLoader(
-                new URL[]{classesDirectory.toUri().toURL()},
+                toUrls(classesDirectory, classpath),
                 ClassLoader.getPlatformClassLoader())) {
 
             Class<?> type = Class.forName(mainClass, false, loader);
@@ -31,8 +37,22 @@ public final class MainClassVerifier {
         }
         catch (IOException e) {
             throw new ZapIoException(
-                    "Cannot open classes directory: " + classesDirectory, e);
+                    "Cannot open classes directory: " + classesDirectory,
+                    e
+            );
         }
+    }
+
+    private static URL[] toUrls(Path classesDirectory,
+                                List<Path> classpath) throws MalformedURLException {
+
+        List<URL> urls = new ArrayList<>();
+
+        urls.add(classesDirectory.toUri().toURL());
+        for (Path entry : classpath)
+            urls.add(entry.toUri().toURL());
+
+        return urls.toArray(new URL[0]);
     }
 
     private static MainClassStatus inspect(Class<?> type) {

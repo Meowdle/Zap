@@ -100,8 +100,9 @@ public final class HelpCatalog {
                 List.of(
                         "zap config --input <value>...",
                         "zap config --args <value>...",
+                        "zap config --classpath <path>...",
                         "zap config --main <package.Class>",
-                        "zap config <--input|--args|--main> --reset",
+                        "zap config <--input|--args|--classpath|--main> --reset",
                         "zap config --show",
                         "zap config --reset-all"),
                 List.of(
@@ -113,20 +114,25 @@ public final class HelpCatalog {
                                 "Save the inputs used on every run"),
                         new OptionDoc("--args <value>...",
                                 "Save the program arguments used on every run"),
+                        new OptionDoc("--classpath <path>...",
+                                "Add jars or folders; \"lib/\" means every jar in lib"),
                         new OptionDoc("--main <package.Class>",
                                 "Set the entry point (name and source file are checked)"),
                         new OptionDoc("--reset",
-                                "With --input, --args or --main: restore that setting"),
+                                "With --input, --args, --classpath or --main: restore that setting"),
                         new OptionDoc("--show",
                                 "Print the current settings"),
                         new OptionDoc("--reset-all",
                                 "Restore every setting to its default")),
                 List.of(
                         "zap config --input Sara 30",
+                        "zap config --classpath \"lib/*\"",
+
+                        "zap config --classpath lib/gson.jar build/classes",
                         "zap config --main com.app.Start",
-                        "zap config --main --reset",
                         "zap config --show"));
     }
+
 
     private static CommandDoc helpDoc() {
         return new CommandDoc(
