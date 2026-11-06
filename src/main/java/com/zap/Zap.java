@@ -21,6 +21,7 @@ import com.zap.execution.ProcessRunner;
 import com.zap.execution.ProgramRunner;
 import com.zap.execution.ProjectExecutor;
 import com.zap.execution.RunOptions;
+import com.zap.project.ClasspathResolver;
 import com.zap.project.ProjectInitializer;
 import com.zap.project.ProjectLayout;
 import com.zap.project.ProjectLocator;
@@ -35,7 +36,7 @@ import java.util.Objects;
 
 public final class Zap {
 
-    private static final String VERSION = "1.1.0 SNAPSHOT";
+    private static final String VERSION = "1.2.0 SNAPSHOT";
 
     private static final int EXIT_OK = 0;
     private static final int EXIT_ERROR = 1;
@@ -135,21 +136,22 @@ public final class Zap {
                 new ProjectInitializer(new ConfigWriter()),
                 System.out);
     }
-
-    private static ConfigCommandHandler createConfigHandler() {
-        return new ConfigCommandHandler(
-                new ProjectLocator(),
-                createManager(),
-                new MainClassSourceLocator(),
-                System.out);
-    }
-
     private static HelpCommandHandler createHelpHandler() {
         return new HelpCommandHandler(
                 HelpCatalog.standard(),
                 new HelpFormatter(),
                 System.out);
     }
+
+    private static ConfigCommandHandler createConfigHandler() {
+        return new ConfigCommandHandler(
+                new ProjectLocator(),
+                createManager(),
+                new MainClassSourceLocator(),
+                new ClasspathResolver(),
+                System.out);
+    }
+
     private static ProjectExecutor createExecutor() {
         ProcessRunner processRunner = new ProcessRunner();
 
@@ -157,6 +159,7 @@ public final class Zap {
                 new SourceDiscovery(),
                 new MainClassResolver(new MainClassFinder()),
                 new MainClassVerifier(),
+                new ClasspathResolver(),
                 new OutputCleaner(),
                 new CompilerRunner(processRunner),
                 new ProgramRunner(processRunner)
