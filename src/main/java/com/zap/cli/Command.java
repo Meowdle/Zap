@@ -47,4 +47,13 @@ public sealed interface Command {
     record ConfigShow() implements ConfigCommand {}
 
     record ConfigResetAll() implements ConfigCommand {}
+
+    record ConfigSetClasspath(List<String> values) implements ConfigCommand {
+
+        public ConfigSetClasspath {
+            values = List.copyOf(values);
+        }
+    }
+
+    record ConfigResetClasspath() implements ConfigCommand {}
 }

@@ -1,8 +1,10 @@
 package com.zap.cli;
 
+import com.zap.config.ClasspathEntries;
 import com.zap.config.ConfigKeys;
 import com.zap.config.ConfigManager;
 import com.zap.config.ZapConfig;
+import com.zap.project.ClasspathResolver;
 import com.zap.project.ProjectLayout;
 import com.zap.project.ProjectLocator;
 import com.zap.project.mainclass.MainClassSourceLocator;
@@ -17,15 +19,18 @@ public final class ConfigCommandHandler {
     private final ProjectLocator locator;
     private final ConfigManager manager;
     private final MainClassSourceLocator sourceLocator;
+    private final ClasspathResolver classpathResolver;
     private final PrintStream out;
 
     public ConfigCommandHandler(ProjectLocator locator,
                                 ConfigManager manager,
                                 MainClassSourceLocator sourceLocator,
+                                ClasspathResolver classpathResolver,
                                 PrintStream out) {
         this.locator = Objects.requireNonNull(locator, "locator");
         this.manager = Objects.requireNonNull(manager, "manager");
         this.sourceLocator = Objects.requireNonNull(sourceLocator, "sourceLocator");
+        this.classpathResolver = Objects.requireNonNull(classpathResolver, "classpathResolver");
         this.out = Objects.requireNonNull(out, "out");
     }
 
@@ -52,6 +57,16 @@ public final class ConfigCommandHandler {
             case Command.ConfigResetArgs resetArgs -> {
                 manager.update(root, config -> config.withArgs(List.of()));
                 out.println("Arguments cleared.");
+            }
+
+            case Command.ConfigSetClasspath set -> {
+                setClasspath(root, set.values());
+                out.println("Saved " + set.values().size() + " class path entry(ies).");
+            }
+
+            case Command.ConfigResetClasspath resetClasspath -> {
+                manager.update(root, config -> config.withClasspath(List.of()));
+                out.println("Class path cleared.");
             }
 
             case Command.ConfigSetMain set -> {
@@ -84,6 +99,19 @@ public final class ConfigCommandHandler {
         manager.save(root, candidate);
     }
 
+    private void setClasspath(Path root, List<String> values) {
+        List<String> entries = values.stream()
+                .map(ClasspathEntries::portable)
+                .toList();
+
+        ZapConfig candidate = manager.resolve(root).withClasspath(entries);
+
+        manager.requireValid(candidate);
+        classpathResolver.resolve(root, entries);
+
+        manager.save(root, candidate);
+    }
+
     private void show(ZapConfig config) {
         config.asMap().forEach((key, value) -> out.println(key + "=" + value));
 
@@ -92,6 +120,9 @@ public final class ConfigCommandHandler {
         }
         if (config.args().isEmpty()) {
             out.println("args=(none)");
+        }
+        if (config.classpath().isEmpty()) {
+            out.println("classpath=(none)");
         }
     }
 }

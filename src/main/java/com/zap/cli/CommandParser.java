@@ -20,7 +20,8 @@ public final class CommandParser {
             Set.of("--input", "--args");
 
     private static final Set<String> CONFIG_OPTIONS =
-            Set.of("--input", "--args", "--main", "--show", "--reset-all", "--reset");
+            Set.of("--input", "--args", "--classpath", "--main",
+                    "--show", "--reset-all", "--reset");
 
     public Command parse(String[] args) {
         // not nullable check
@@ -146,6 +147,11 @@ public final class CommandParser {
             case "--args" -> reset
                     ? resetOnly(option, values, new Command.ConfigResetArgs())
                     : new Command.ConfigSetArgs(requireValues(option, values));
+
+            case "--classpath" -> reset
+                    ? resetOnly(option, values, new Command.ConfigResetClasspath())
+                    : new Command.ConfigSetClasspath(requireValues(option, values));
+
             case "--main" -> reset
                     ? resetOnly(option, values, new Command.ConfigResetMain())
                     : new Command.ConfigSetMain(requireSingle(option, values));
